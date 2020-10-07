@@ -17,13 +17,33 @@ class HomeTableViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         loadTweet()
         
         myRefreshControl.addTarget(self, action: #selector(loadTweet), for: .valueChanged)
         tableView.refreshControl = myRefreshControl
+        //loadTweet()
+        /*self.tweetArray.rowHeight = UITableView.automaticDimension
+        self.tweetArray.estimatedRowHeight = 150*/
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        loadTweet()
+    }
+    
+    /*override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        self.loadTweet()
+    }*/
+    
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "tweet"{
+            let vc = segue.destination as! UINavigationController
+            vc.modalPresentationStyle = .fullScreen
+        }
+    }
+    
     @objc func loadTweet(){
         
         numberOfTweet = 20
@@ -90,12 +110,19 @@ class HomeTableViewController: UITableViewController {
         cell.userNameLabel.text = user["name"] as? String
         cell.tweetContent.text = tweetArray[indexPath.row]["text"] as? String
         
+        /*cell.timeLabel.text = getRelativeTime(timeString: (tweetArray[indexPath.row]["created_at"] as? String)!)*/
+    
         let imageUrl = URL(string: (user["profile_image_url_https"] as? String)!)
         let data = try? Data(contentsOf: imageUrl!)
         
         if let imageData = data{
             cell.profileImageView.image = UIImage(data: imageData)
         }
+        
+        cell.setFavorite(tweetArray[indexPath.row]["favorited"] as! Bool)
+        cell.tweetId = tweetArray[indexPath.row]["id"] as! Int
+        cell.setRetweeted(tweetArray[indexPath.row]["retweeted"] as! Bool)
+        
         
         return cell
     }
